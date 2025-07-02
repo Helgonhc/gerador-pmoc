@@ -173,35 +173,47 @@
 <body class="p-0 m-0">
 
   <!-- Tela de Login -->
-  <div id="login-screen" class="flex items-center justify-center min-h-screen bg-gray-900">
-    <div class="w-full max-w-md p-8 space-y-8 bg-white/10 backdrop-blur-sm rounded-2xl shadow-2xl border border-gray-700">
-        <div class="text-center">
-             <img class="mx-auto h-24 w-auto" src="https://i.postimg.cc/XNRRmcJ0/Chat-GPT-Image-30-06-2025-13-19-36.png" alt="Logo da Empresa">
-            <h2 class="mt-6 text-3xl font-bold text-white">
-                Acesso ao Sistema
-            </h2>
+  <div id="login-screen" class="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-700 via-gray-900 to-black p-4">
+    <div class="w-full max-w-sm p-8 space-y-8 bg-gray-900/30 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/20">
+        <!-- Avatar -->
+        <div class="flex justify-center">
+             <svg class="w-24 h-24 text-white/50" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
         </div>
-        <form id="login-form" class="mt-8 space-y-6">
-            <div class="relative">
-                <input id="username" name="username" type="text" required class="w-full px-4 py-3 text-white bg-gray-700 border-2 border-gray-600 rounded-lg focus:outline-none focus:bg-gray-600 focus:border-blue-500" placeholder="Utilizador">
+
+        <form id="login-form" class="space-y-8">
+            <!-- Username Input -->
+            <div class="flex items-center gap-4 border-b-2 border-white/30 py-1 focus-within:border-blue-400 transition">
+                <svg class="w-5 h-5 text-white/50" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                </svg>
+                <input id="username" name="username" type="text" required class="w-full py-2 text-white bg-transparent focus:outline-none placeholder:text-white/50" placeholder="Utilizador">
             </div>
-            <div class="relative">
-                <input id="password" name="password" type="password" required class="w-full px-4 py-3 text-white bg-gray-700 border-2 border-gray-600 rounded-lg focus:outline-none focus:bg-gray-600 focus:border-blue-500" placeholder="Senha">
+            
+            <!-- Password Input -->
+            <div class="flex items-center gap-4 border-b-2 border-white/30 py-1 focus-within:border-blue-400 transition">
+                <svg class="w-5 h-5 text-white/50" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+                </svg>
+                <input id="password" name="password" type="password" required class="w-full py-2 text-white bg-transparent focus:outline-none placeholder:text-white/50" placeholder="Senha">
             </div>
+
             <p id="login-error" class="text-red-400 text-sm text-center hidden">Utilizador ou senha inválidos.</p>
+            
             <div class="flex items-center justify-end text-sm">
-                <a href="#" id="forgot-password-link" class="font-medium text-blue-400 hover:text-blue-300">
+                <a href="#" id="forgot-password-link" class="font-medium text-white/70 hover:text-white">
                     Alterar Senha
                 </a>
             </div>
+            
             <div>
-                <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-transform transform hover:scale-105">
+                <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent text-base font-medium rounded-full text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-blue-500 transition-transform transform hover:scale-105">
                     Entrar
                 </button>
             </div>
         </form>
     </div>
-  </div>
+</div>
+
 
   <!-- App Principal (Inicialmente Oculto) -->
   <div id="app-container" class="hidden p-2 sm:p-4 md:p-8">
@@ -355,70 +367,70 @@
 
   <div id="templates" class="hidden">
       <div id="environment-template">
-          <div class="environment-item border-2 border-dashed p-4 rounded-lg bg-white shadow-sm transition-all duration-300">
-              <div class="input-group"><label class="required block text-sm font-medium text-gray-700">Nome do Ambiente</label><input type="text" class="env-name font-semibold text-lg w-full p-2 border-b focus:ring-2 focus:ring-blue-300" required></div>
-              <div class="input-group"><label class="block text-sm font-medium text-gray-700">Tipo de Atividade</label><input type="text" class="env-activity w-full text-sm p-2 border rounded focus:ring-1 focus:ring-blue-200"></div>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div class="input-group"><label class="block text-sm font-medium text-gray-700">Ocupantes Fixos</label><input type="text" class="env-occupants-fixed w-full text-sm p-2 border rounded"></div>
-                  <div class="input-group"><label class="block text-sm font-medium text-gray-700">Ocupantes Flutuantes</label><input type="text" class="env-occupants-float w-full text-sm p-2 border rounded"></div>
-              </div>
-              <div class="input-group"><label class="block text-sm font-medium text-gray-700">Área Climatizada (m²)</label><input type="text" class="env-area w-full text-sm p-2 border rounded"></div>
-              <h4 class="font-semibold mt-4 mb-1 text-sm text-blue-900">Equipamentos:</h4>
-              <div class="equipments-container space-y-2 mt-2"></div>
-              <button class="add-equipment bg-blue-500 text-white text-sm py-1 px-2 rounded hover:bg-blue-600 shadow">Adicionar Equipamento</button>
-              <h4 class="font-semibold mt-4 mb-1 text-sm text-blue-900">Checklist de Manutenção (Editável):</h4>
-              <div class="checklist-container overflow-x-auto border rounded bg-slate-50 p-2 max-h-96"></div>
-              <div class="text-right mt-3">
-                  <button class="remove-environment bg-red-500 text-white text-sm py-1 px-3 rounded hover:bg-red-600 shadow">Remover Ambiente</button>
-              </div>
-          </div>
+        <div class="environment-item border-2 border-dashed p-4 rounded-lg bg-white shadow-sm transition-all duration-300">
+            <div class="input-group"><label class="required block text-sm font-medium text-gray-700">Nome do Ambiente</label><input type="text" class="env-name font-semibold text-lg w-full p-2 border-b focus:ring-2 focus:ring-blue-300" required></div>
+            <div class="input-group"><label class="block text-sm font-medium text-gray-700">Tipo de Atividade</label><input type="text" class="env-activity w-full text-sm p-2 border rounded focus:ring-1 focus:ring-blue-200"></div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div class="input-group"><label class="block text-sm font-medium text-gray-700">Ocupantes Fixos</label><input type="text" class="env-occupants-fixed w-full text-sm p-2 border rounded"></div>
+                <div class="input-group"><label class="block text-sm font-medium text-gray-700">Ocupantes Flutuantes</label><input type="text" class="env-occupants-float w-full text-sm p-2 border rounded"></div>
+            </div>
+            <div class="input-group"><label class="block text-sm font-medium text-gray-700">Área Climatizada (m²)</label><input type="text" class="env-area w-full text-sm p-2 border rounded"></div>
+            <h4 class="font-semibold mt-4 mb-1 text-sm text-blue-900">Equipamentos:</h4>
+            <div class="equipments-container space-y-2 mt-2"></div>
+            <button class="add-equipment bg-blue-500 text-white text-sm py-1 px-2 rounded hover:bg-blue-600 shadow">Adicionar Equipamento</button>
+            <h4 class="font-semibold mt-4 mb-1 text-sm text-blue-900">Checklist de Manutenção (Editável):</h4>
+            <div class="checklist-container overflow-x-auto border rounded bg-slate-50 p-2 max-h-96"></div>
+            <div class="text-right mt-3">
+                <button class="remove-environment bg-red-500 text-white text-sm py-1 px-3 rounded hover:bg-red-600 shadow">Remover Ambiente</button>
+            </div>
+        </div>
       </div>
       <div id="equipment-template">
-          <div class="equipment-item border border-slate-300 bg-gray-50 p-4 rounded mt-2 relative shadow-sm">
-              <button class="remove-equipment absolute top-2 right-2 text-red-500 hover:text-red-700 font-bold text-lg leading-none p-1">&times;</button>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
-                  <div class="input-group">
-                      <label class="required block text-sm font-medium text-gray-700">Equipamento</label>
-                      <input type="text" placeholder="Ex: Split" class="equip-type w-full text-sm p-2 border rounded focus:ring-1 focus:ring-blue-300" required>
-                  </div>
-                  <div class="input-group">
-                      <label class="block text-sm font-medium text-gray-700">Fabricante</label>
-                      <input type="text" placeholder="Ex: LG" class="equip-manufacturer w-full text-sm p-2 border rounded">
-                  </div>
-                  <div class="input-group sm:col-span-2">
-                      <label class="block text-sm font-medium text-gray-700">Modelo</label>
-                      <input type="text" placeholder="Ex: S3NW24K231A" class="equip-model w-full text-sm p-2 border rounded">
-                  </div>
-                  <div class="input-group">
-                      <label class="block text-sm font-medium text-gray-700">Capacidade Refrig.</label>
-                      <input type="text" placeholder="Ex: 22.000 BTU/h" class="equip-capacity-cool w-full text-sm p-2 border rounded">
-                  </div>
-                  <div class="input-group">
-                      <label class="block text-sm font-medium text-gray-700">Capacidade Aquec.</label>
-                      <input type="text" placeholder="Ex: N/A" class="equip-capacity-heat w-full text-sm p-2 border rounded">
-                  </div>
-                  <div class="input-group">
-                      <label class="block text-sm font-medium text-gray-700">Gás Refrigerante</label>
-                      <input type="text" placeholder="Ex: R32" class="equip-gas w-full text-sm p-2 border rounded">
-                  </div>
-                  <div class="input-group">
-                      <label class="block text-sm font-medium text-gray-700">Tensão</label>
-                      <input type="text" placeholder="Ex: 220V" class="equip-voltage w-full text-sm p-2 border rounded">
-                  </div>
-                  <div class="input-group">
-                      <label class="block text-sm font-medium text-gray-700">Frequência</label>
-                      <input type="text" placeholder="Ex: 60Hz" class="equip-frequency w-full text-sm p-2 border rounded">
-                  </div>
-                  <div class="input-group">
-                      <label class="block text-sm font-medium text-gray-700">Corrente</label>
-                      <input type="text" placeholder="Ex: 14,0 A" class="equip-current w-full text-sm p-2 border rounded">
-                  </div>
-                  <div class="input-group">
-                      <label class="required block text-sm font-medium text-gray-700">Quantidade</label>
-                      <input type="number" value="1" class="equip-qty w-full text-sm p-2 border rounded" min="1" required>
-                  </div>
-              </div>
-          </div>
+        <div class="equipment-item border border-slate-300 bg-gray-50 p-4 rounded mt-2 relative shadow-sm">
+            <button class="remove-equipment absolute top-2 right-2 text-red-500 hover:text-red-700 font-bold text-lg leading-none p-1">&times;</button>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
+                <div class="input-group">
+                    <label class="required block text-sm font-medium text-gray-700">Equipamento</label>
+                    <input type="text" placeholder="Ex: Split" class="equip-type w-full text-sm p-2 border rounded focus:ring-1 focus:ring-blue-300" required>
+                </div>
+                <div class="input-group">
+                    <label class="block text-sm font-medium text-gray-700">Fabricante</label>
+                    <input type="text" placeholder="Ex: LG" class="equip-manufacturer w-full text-sm p-2 border rounded">
+                </div>
+                <div class="input-group sm:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700">Modelo</label>
+                    <input type="text" placeholder="Ex: S3NW24K231A" class="equip-model w-full text-sm p-2 border rounded">
+                </div>
+                <div class="input-group">
+                    <label class="block text-sm font-medium text-gray-700">Capacidade Refrig.</label>
+                    <input type="text" placeholder="Ex: 22.000 BTU/h" class="equip-capacity-cool w-full text-sm p-2 border rounded">
+                </div>
+                <div class="input-group">
+                    <label class="block text-sm font-medium text-gray-700">Capacidade Aquec.</label>
+                    <input type="text" placeholder="Ex: N/A" class="equip-capacity-heat w-full text-sm p-2 border rounded">
+                </div>
+                <div class="input-group">
+                    <label class="block text-sm font-medium text-gray-700">Gás Refrigerante</label>
+                    <input type="text" placeholder="Ex: R32" class="equip-gas w-full text-sm p-2 border rounded">
+                </div>
+                <div class="input-group">
+                    <label class="block text-sm font-medium text-gray-700">Tensão</label>
+                    <input type="text" placeholder="Ex: 220V" class="equip-voltage w-full text-sm p-2 border rounded">
+                </div>
+                <div class="input-group">
+                    <label class="block text-sm font-medium text-gray-700">Frequência</label>
+                    <input type="text" placeholder="Ex: 60Hz" class="equip-frequency w-full text-sm p-2 border rounded">
+                </div>
+                <div class="input-group">
+                    <label class="block text-sm font-medium text-gray-700">Corrente</label>
+                    <input type="text" placeholder="Ex: 14,0 A" class="equip-current w-full text-sm p-2 border rounded">
+                </div>
+                <div class="input-group">
+                    <label class="required block text-sm font-medium text-gray-700">Quantidade</label>
+                    <input type="number" value="1" class="equip-qty w-full text-sm p-2 border rounded" min="1" required>
+                </div>
+            </div>
+        </div>
       </div>
   </div>
 
@@ -438,6 +450,8 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        let loggedInUser = ''; // Variável para armazenar o nome do utilizador logado
+
         const DOMElements = {
             loginScreen: document.getElementById('login-screen'),
             appContainer: document.getElementById('app-container'),
@@ -492,6 +506,7 @@
             const password = document.getElementById('password').value;
 
             if (users[username] && users[username] === password) {
+                loggedInUser = username; // Armazena o nome do utilizador
                 DOMElements.loginScreen.style.display = 'none';
                 DOMElements.appContainer.style.display = 'block';
                 initializePmocGenerator();
@@ -527,6 +542,12 @@
 
 
         function initializePmocGenerator() {
+            // Atualiza o botão de sair com o nome do utilizador
+            const logoutBtn = document.getElementById('logout-btn');
+            if (logoutBtn && loggedInUser) {
+                logoutBtn.innerHTML = `Sair (${loggedInUser})`;
+            }
+
             // --- DADOS INICIAIS E CONFIGURAÇÕES ---
             const defaultIntroText = `O PMOC, sigla para Plano de Manutenção, Operação e Controle, é um plano estabelecido por lei visando garantir a qualidade do ambiente, preservando assim a saúde das pessoas e das edificações. Ele é baseado em diversos relatórios realizados com uma determinada periodicidade que vão informar sobre falhas, necessidade de manutenção e limpeza e outros dados relativos aos sistemas de climatização de um local.\n\nEm 1998, o Ministério da Saúde baixou a portaria nº 3.523, tornando obrigatória a implementação e disponibilização de um Plano de Manutenção, Operação e Controle (PMOC) em imóveis com sistemas de climatização. Em janeiro de 2018, a Lei 13.589/2018, publicada no Diário Oficial da União, complementou a portaria determinando que todos os edifícios - públicos ou privados - são obrigados a fazer a manutenção de seus sistemas de ar-condicionado.\n\nO PMOC deve obedecer aos parâmetros regulamentados pela Resolução 9/2003 da Agência Nacional de Vigilância Sanitária (Anvisa) e posteriores alterações, bem como às normas da Associação Brasileira de Normas Técnicas (ABNT). Sua ausência configura infração sanitária sujeita às penalidades previstas na Lei nº 6.437 e os valores da infração podem variar de R$ 2.000,00 a R$ 200.000,00.`;
             const defaultConclusionText = `Recomenda-se a manutenção da limpeza dos ambientes para garantir a eficiência do sistema de climatização e a qualidade do ar. Manter portas e janelas fechadas durante a operação dos equipamentos. Todas as rotinas de manutenção foram executadas conforme o plano.`;

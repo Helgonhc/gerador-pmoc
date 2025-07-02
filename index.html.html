@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gerador de PMOC Profissional v86 - Final</title>
+  <title>Gerador de PMOC Profissional v88 - Final</title>
 
   <!-- TailwindCSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -173,47 +173,33 @@
 <body class="p-0 m-0">
 
   <!-- Tela de Login -->
-  <div id="login-screen" class="flex items-center justify-center min-h-screen bg-white">
-    <div class="flex w-full h-screen">
-        <!-- Lado Esquerdo - Imagem -->
-        <div class="hidden lg:flex w-1/2 items-center justify-center bg-gray-800 bg-cover" style="background-image: url('https://images.unsplash.com/photo-1554493810-1486b4b4e368?q=80&w=2070&auto=format&fit=crop');">
-            <div class="bg-black bg-opacity-50 p-12 rounded-lg text-center">
-                <h1 class="text-5xl font-bold text-white mb-4">Bem-vindo</h1>
-                <p class="text-xl text-gray-200">Gerador de Relatórios PMOC</p>
-            </div>
+  <div id="login-screen" class="flex items-center justify-center min-h-screen bg-gray-900">
+    <div class="w-full max-w-md p-8 space-y-8 bg-white/10 backdrop-blur-sm rounded-2xl shadow-2xl border border-gray-700">
+        <div class="text-center">
+             <img class="mx-auto h-24 w-auto" src="https://storage.googleapis.com/project-1-122550950332/us-central1-uploads/2024-07-02T00:53:29.871Z/ChatGPT%20Image%2030_06_2025,%2013_19_36.jpg-08358719-9b85-4f1b-8be4-ed4060203f8c.jpg" alt="Logo da Empresa">
+            <h2 class="mt-6 text-3xl font-bold text-white">
+                Acesso ao Sistema
+            </h2>
         </div>
-        <!-- Lado Direito - Formulário -->
-        <div class="w-full lg:w-1/2 flex items-center justify-center p-8">
-            <div class="w-full max-w-md space-y-8">
-                <div class="text-center">
-                    <img class="mx-auto h-24 w-auto" src="https://i.postimg.cc/XNRRmcJ0/Chat-GPT-Image-30-06-2025-13-19-36.png" alt="Logo da Empresa">
-                    <h2 class="mt-6 text-3xl font-bold text-gray-900">
-                        Aceder à sua conta
-                    </h2>
-                </div>
-                <form id="login-form" class="mt-8 space-y-6" action="#" method="POST">
-                    <div class="relative">
-                        <label for="username" class="sr-only">Utilizador</label>
-                        <input id="username" name="username" type="text" required class="w-full px-4 py-3 text-gray-700 bg-gray-100 border-2 border-gray-200 rounded-lg focus:outline-none focus:bg-white focus:border-blue-500" placeholder="Utilizador">
-                    </div>
-                    <div class="relative">
-                        <label for="password" class="sr-only">Senha</label>
-                        <input id="password" name="password" type="password" required class="w-full px-4 py-3 text-gray-700 bg-gray-100 border-2 border-gray-200 rounded-lg focus:outline-none focus:bg-white focus:border-blue-500" placeholder="Senha">
-                    </div>
-                    <p id="login-error" class="text-red-500 text-sm text-center hidden">Utilizador ou senha inválidos.</p>
-                    <div class="flex items-center justify-between text-sm">
-                        <a href="#" id="forgot-password-link" class="font-medium text-blue-600 hover:text-blue-500">
-                            Esqueceu a senha?
-                        </a>
-                    </div>
-                    <div>
-                        <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-transform transform hover:scale-105">
-                            Entrar
-                        </button>
-                    </div>
-                </form>
+        <form id="login-form" class="mt-8 space-y-6">
+            <div class="relative">
+                <input id="username" name="username" type="text" required class="w-full px-4 py-3 text-white bg-gray-700 border-2 border-gray-600 rounded-lg focus:outline-none focus:bg-gray-600 focus:border-blue-500" placeholder="Utilizador">
             </div>
-        </div>
+            <div class="relative">
+                <input id="password" name="password" type="password" required class="w-full px-4 py-3 text-white bg-gray-700 border-2 border-gray-600 rounded-lg focus:outline-none focus:bg-gray-600 focus:border-blue-500" placeholder="Senha">
+            </div>
+            <p id="login-error" class="text-red-400 text-sm text-center hidden">Utilizador ou senha inválidos.</p>
+            <div class="flex items-center justify-end text-sm">
+                <a href="#" id="forgot-password-link" class="font-medium text-blue-400 hover:text-blue-300">
+                    Alterar Senha
+                </a>
+            </div>
+            <div>
+                <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-transform transform hover:scale-105">
+                    Entrar
+                </button>
+            </div>
+        </form>
     </div>
   </div>
 
@@ -518,16 +504,21 @@
             e.preventDefault();
             const username = prompt("Para alterar a sua senha, por favor, insira o seu nome de utilizador:");
             if (users[username]) {
-                const newPassword = prompt("Insira a sua nova senha:");
-                if (newPassword) {
-                    const confirmPassword = prompt("Confirme a sua nova senha:");
-                    if (newPassword === confirmPassword) {
-                        users[username] = newPassword;
-                        localStorage.setItem('pmocUsers', JSON.stringify(users));
-                        showToast('Senha alterada com sucesso!');
-                    } else {
-                        showToast('As senhas não coincidem. A senha não foi alterada.');
+                const oldPassword = prompt("Insira a sua senha antiga:");
+                if(users[username] === oldPassword) {
+                    const newPassword = prompt("Insira a sua nova senha:");
+                    if (newPassword) {
+                        const confirmPassword = prompt("Confirme a sua nova senha:");
+                        if (newPassword === confirmPassword) {
+                            users[username] = newPassword;
+                            localStorage.setItem('pmocUsers', JSON.stringify(users));
+                            showToast('Senha alterada com sucesso!');
+                        } else {
+                            showToast('As senhas não coincidem. A senha não foi alterada.');
+                        }
                     }
+                } else {
+                    showToast('Senha antiga incorreta.');
                 }
             } else if (username) {
                 showToast('Utilizador não encontrado.');

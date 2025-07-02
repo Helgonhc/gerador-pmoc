@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gerador de PMOC Profissional v86 - Final</title>
+
+  <!-- TailwindCSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Fontes -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Bibliotecas PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
+
+  <!-- Estilos base -->
+  <style>
+    :root {
+      --primary-color: #1a3b5d;
+      --secondary-color: #0077b6;
+      --light-gray: #f4f7f6;
+      --border-color: #dee2e6;
+      --text-color: #34495e;
+      --header-bg: #1a3b5d;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #eef2f5;
+      color: var(--text-color);
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+      font-family: 'Inter', sans-serif;
+    }
+
+    .input-group label.required::after {
+      content: " *";
+      color: #ef4444;
+      font-weight: bold;
+    }
+
+    summary::marker {
+      display: none;
+    }
+    
+    input:invalid {
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.4);
+    }
+
+    input[type="text"],
+    input[type="password"],
+    input[type="number"],
+    input[type="date"],
+    input[type="email"],
+    textarea {
+      width: 100%;
+      padding: 0.5rem;
+      border-radius: 0.375rem;
+      border: 1px solid var(--border-color);
+    }
+
+    .pmoc-page {
+        background-color: white; 
+        width: 794px; /* A4 width in pixels at 96 DPI */
+        min-height: 1123px; /* A4 height in pixels at 96 DPI */
+        padding: 0;
+        margin: 0 auto 1rem auto;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        border: 1px solid var(--border-color); 
+        display: flex; 
+        flex-direction: column;
+        position: relative;
+    }
+    .pmoc-page-content { flex-grow: 1; padding: 40px 60px; }
+    .pmoc-header-design {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 28px 60px;
+    }
+    .cover-header-design {
+        background-color: white;
+        padding: 28px 60px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid var(--border-color);
+    }
+    .pmoc-footer-design {
+        background-color: var(--light-gray);
+        border-top: 2px solid var(--secondary-color);
+        padding: 18px 60px;
+        font-size: 0.7rem;
+        text-align: center;
+        color: var(--text-color);
+    }
+    h2 {
+        font-size: 1.3rem;
+        color: var(--primary-color);
+        border-bottom: 2px solid var(--secondary-color);
+        padding-bottom: 8px;
+        margin-top: 1.5rem;
+        margin-bottom: 1.25rem;
+    }
+    h3.section-title {
+        font-size: 1rem;
+        background-color: var(--light-gray);
+        padding: 0.5rem 0.75rem;
+        border-left: 4px solid var(--secondary-color);
+        color: var(--primary-color);
+        margin-top: 1.25rem;
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+    th {
+        background-color: var(--header-bg);
+        color: white;
+        padding: 10px 8px;
+        text-align: left;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    td {
+        padding: 10px 8px;
+        border-bottom: 1px solid var(--border-color);
+        font-size: 0.8rem;
+        vertical-align: top;
+    }
+    .checklist-table td {
+        word-break: break-word;
+    }
+    tbody tr:nth-child(odd) { background-color: var(--light-gray); }
+    .logo-img-color { max-width: 190px; max-height: 85px; object-fit: contain; }
+    
+    .cover-page-content {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: 100%;
+    }
+    .cover-page-main { text-align: center; }
+    .cover-page-main h1 { font-size: 2.2rem; line-height: 1.2; }
+    .cover-page-main p { font-size: 1.2rem; color: var(--text-color); }
+    .cover-page-client-box {
+        margin-top: 4rem;
+        padding: 2rem;
+        border-top: 4px solid var(--secondary-color);
+        border-bottom: 4px solid var(--secondary-color);
+    }
+    #print-view-container { display: none; }
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; }
+    .modal-overlay.visible { opacity: 1; visibility: visible; }
+    .modal-content { background: white; padding: 2rem; border-radius: 8px; text-align: center; max-width: 90%; width: 400px; transform: scale(0.9); transition: transform 0.3s; }
+    .modal-overlay.visible .modal-content { transform: scale(1); }
+    .toast-notification { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #2d3748; color: white; padding: 12px 24px; border-radius: 6px; z-index: 1100; opacity: 0; visibility: hidden; transition: opacity 0.5s, transform 0.5s, visibility 0.5s; }
+    .toast-notification.visible { opacity: 1; transform: translateX(-50%) translateY(0); visibility: visible; }
+    .checklist-container {
+        max-height: 400px;
+        overflow-y: auto;
+        position: relative;
+    }
+    .checklist-container thead th {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background-color: var(--header-bg);
+    }
+  </style>
+</head>
+<body class="p-0 m-0">
+
+  <!-- Tela de Login -->
+  <div id="login-screen" class="flex items-center justify-center min-h-screen bg-white">
+    <div class="flex w-full h-screen">
+        <!-- Lado Esquerdo - Imagem -->
+        <div class="hidden lg:flex w-1/2 items-center justify-center bg-gray-800 bg-cover" style="background-image: url('https://images.unsplash.com/photo-1554493810-1486b4b4e368?q=80&w=2070&auto=format&fit=crop');">
+            <div class="bg-black bg-opacity-50 p-12 rounded-lg text-center">
+                <h1 class="text-5xl font-bold text-white mb-4">Bem-vindo</h1>
+                <p class="text-xl text-gray-200">Gerador de Relatórios PMOC</p>
+            </div>
+        </div>
+        <!-- Lado Direito - Formulário -->
+        <div class="w-full lg:w-1/2 flex items-center justify-center p-8">
+            <div class="w-full max-w-md space-y-8">
+                <div class="text-center">
+                    <img class="mx-auto h-24 w-auto" src="https://i.postimg.cc/XNRRmcJ0/Chat-GPT-Image-30-06-2025-13-19-36.png" alt="Logo da Empresa">
+                    <h2 class="mt-6 text-3xl font-bold text-gray-900">
+                        Digite Seu Usuário
+                    </h2>
+                </div>
+                <form id="login-form" class="mt-8 space-y-6" action="#" method="POST">
+                    <div class="relative">
+                        <label for="username" class="sr-only">Utilizador</label>
+                        <input id="username" name="username" type="text" required class="w-full px-4 py-3 text-gray-700 bg-gray-100 border-2 border-gray-200 rounded-lg focus:outline-none focus:bg-white focus:border-blue-500" placeholder="Utilizador">
+                    </div>
+                    <div class="relative">
+                        <label for="password" class="sr-only">Senha</label>
+                        <input id="password" name="password" type="password" required class="w-full px-4 py-3 text-gray-700 bg-gray-100 border-2 border-gray-200 rounded-lg focus:outline-none focus:bg-white focus:border-blue-500" placeholder="Senha">
+                    </div>
+                    <p id="login-error" class="text-red-500 text-sm text-center hidden">Utilizador ou senha inválidos.</p>
+                    <div class="flex items-center justify-between text-sm">
+                        <a href="#" id="forgot-password-link" class="font-medium text-blue-600 hover:text-blue-500">
+                            Esqueceu a senha?
+                        </a>
+                    </div>
+                    <div>
+                        <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-transform transform hover:scale-105">
+                            Entrar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <!-- App Principal (Inicialmente Oculto) -->
+  <div id="app-container" class="hidden p-2 sm:p-4 md:p-8">
+    <div id="editor-container" class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+      <div id="input-form" class="lg:col-span-2 p-6 bg-white rounded-lg shadow-lg sticky top-8 h-fit overflow-y-auto max-h-[90vh]">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-slate-800">Gerador de PMOC</h1>
+            <button id="logout-btn" class="bg-red-500 text-white text-xs py-2 px-3 rounded-md hover:bg-red-600">Sair</button>
+        </div>
+        <div class="space-y-4">
+          <details class="mb-4" open>
+            <summary class="font-semibold cursor-pointer">Informações Gerais</summary>
+            <div class="p-4 border-t space-y-4">
+              <div class="input-group">
+                <label for="clientName" class="required block text-sm font-medium text-gray-700">Nome do Cliente</label>
+                <input type="text" id="clientName" required>
+              </div>
+              <div class="input-group">
+                <label for="clientAddress" class="required block text-sm font-medium text-gray-700">Endereço do Cliente</label>
+                <input type="text" id="clientAddress" required>
+              </div>
+              <div class="input-group">
+                <label for="clientContact" class="block text-sm font-medium text-gray-700">CNPJ do Cliente</label>
+                <input type="text" id="clientContact" pattern="\d{2}\.\d{3}\.\d{3}/\d{4}-\d{2}" placeholder="00.000.000/0001-00">
+              </div>
+              <div class="input-group">
+                <label for="documentDate" class="required block text-sm font-medium text-gray-700">Data do Documento</label>
+                <input type="date" id="documentDate" required>
+              </div>
+              <div class="input-group">
+                <label for="companyCity" class="required block text-sm font-medium text-gray-700">Cidade</label>
+                <input type="text" id="companyCity" required>
+              </div>
+              <hr class="my-4">
+              <div class="input-group">
+                <label for="companyName" class="required block text-sm font-medium text-gray-700">Empresa Responsável</label>
+                <input type="text" id="companyName" required>
+              </div>
+              <div class="input-group">
+                <label for="companyAddress" class="block text-sm font-medium text-gray-700">Endereço da Empresa</label>
+                <input type="text" id="companyAddress">
+              </div>
+              <div class="input-group">
+                <label for="companyCnpj" class="block text-sm font-medium text-gray-700">CNPJ da Empresa</label>
+                <input type="text" id="companyCnpj" pattern="\d{2}\.\d{3}\.\d{3}/\d{4}-\d{2}" placeholder="00.000.000/0001-00">
+              </div>
+              <div class="input-group">
+                <label for="companyPhone" class="block text-sm font-medium text-gray-700">Telefone da Empresa</label>
+                <input type="text" id="companyPhone" pattern="\(\d{2}\)\s?\d{4,5}-\d{4}" placeholder="(XX) XXXXX-XXXX">
+              </div>
+              <div class="input-group">
+                <label for="companyEmail" class="block text-sm font-medium text-gray-700">Email da Empresa</label>
+                <input type="email" id="companyEmail" placeholder="email@exemplo.com">
+              </div>
+              <hr class="my-4">
+              <div class="input-group">
+                <label for="techName" class="required block text-sm font-medium text-gray-700">Nome do Responsável</label>
+                <input type="text" id="techName" required>
+              </div>
+              <div class="input-group">
+                <label for="techRole" class="block text-sm font-medium text-gray-700">Função / Cargo</label>
+                <input type="text" id="techRole">
+              </div>
+              <div class="input-group">
+                <label for="techContact" class="block text-sm font-medium text-gray-700">CREA / CFT</label>
+                <input type="text" id="techContact">
+              </div>
+            </div>
+          </details>
+          
+          <details class="mb-4">
+            <summary class="font-semibold cursor-pointer">Logotipos e Capa</summary>
+            <div class="p-4 border-t space-y-4">
+              <div class="input-group">
+                <label for="clientLogo" class="block text-sm font-medium text-gray-700">Logo do Cliente</label>
+                <input type="file" id="clientLogo" accept="image/*">
+              </div>
+              <div class="input-group">
+                <label for="companyLogo" class="block text-sm font-medium text-gray-700">Logo da Sua Empresa</label>
+                <input type="file" id="companyLogo" accept="image/*">
+              </div>
+              <hr class="my-4">
+              <div class="input-group">
+                <label for="coverImage" class="block text-sm font-medium text-gray-700">Imagem de Fundo da Capa (Opcional)</label>
+                <input type="file" id="coverImage" accept="image/*">
+              </div>
+              <button id="removeCoverImage" class="mt-2 bg-gray-500 text-white text-sm py-1 px-2 rounded hover:bg-gray-600">
+                Remover Imagem da Capa
+              </button>
+              <hr class="my-4">
+              <div class="input-group">
+                <label for="signatureImage" class="block text-sm font-medium text-gray-700">Upload da Assinatura do Responsável</label>
+                <input type="file" id="signatureImage" accept="image/*">
+              </div>
+              <button id="removeSignatureImage" class="mt-2 bg-gray-500 text-white text-sm py-1 px-2 rounded hover:bg-gray-600">
+                Remover Assinatura
+              </button>
+            </div>
+          </details>
+
+          <details class="mb-4" open>
+            <summary class="font-semibold cursor-pointer">Texto da Introdução</summary>
+            <div class="p-4 border-t">
+              <div class="input-group">
+                <label for="introText" class="required block text-sm font-medium text-gray-700">Edite o texto da introdução aqui</label>
+                <textarea id="introText" rows="10" class="w-full p-2 border rounded" required></textarea>
+              </div>
+            </div>
+          </details>
+
+          <details class="mb-4" open>
+            <summary class="font-semibold cursor-pointer">Ambientes e Equipamentos</summary>
+            <div id="environments-container" class="p-4 border-t space-y-4"></div>
+            <button id="add-environment" class="m-4 bg-indigo-600 text-white py-2 px-4 rounded hover:bg-indigo-700">
+              Adicionar Ambiente
+            </button>
+          </details>
+
+          <details class="mb-4" open>
+              <summary class="font-semibold cursor-pointer">Conclusão Final</summary>
+              <div class="p-4 border-t">
+                  <div class="input-group">
+                      <label for="conclusionText" class="required block text-sm font-medium text-gray-700">Texto da Conclusão e Recomendações</label>
+                      <textarea id="conclusionText" rows="5" class="w-full p-2 border rounded" required></textarea>
+                  </div>
+              </div>
+          </details>
+
+          <div class="space-y-3 pt-4">
+              <button id="save-state-button" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 text-lg transition duration-150 ease-in-out shadow">Salvar Progresso</button>
+              <button id="prepare-print-button" class="w-full bg-green-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-700 text-lg transition duration-150 ease-in-out shadow">Gerar PDF</button>
+              <button id="clear-state-button" class="w-full bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700 text-sm transition duration-150 ease-in-out shadow">Limpar Dados Salvos</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="pmoc-preview-container" class="lg:col-span-3 border-2 border-dashed border-slate-300 rounded-lg p-4 bg-white shadow-sm overflow-x-auto">
+      </div>
+    </div>
+
+    <div id="print-view-container" class="bg-gray-100 min-h-screen">
+        <div id="print-controls" class="p-4 bg-gray-800 text-white sticky top-0 z-50 flex flex-wrap justify-center items-center gap-4 shadow-md">
+            <p class="font-semibold text-lg tracking-wide">Modo de Geração de PDF</p>
+            <button id="back-to-editor-button" class="bg-gray-500 hover:bg-gray-600 py-2 px-4 rounded text-sm">Voltar ao Editor</button>
+            <button id="save-pdf-button" class="bg-blue-600 hover:bg-blue-700 font-bold py-2 px-4 rounded text-sm flex items-center justify-center transition duration-200">Baixar PDF</button>
+        </div>
+        <div id="pmoc-for-print" class="p-4">
+        </div>
+    </div>
+  </div>
+
+  <div id="templates" class="hidden">
+      <div id="environment-template">
+          <div class="environment-item border-2 border-dashed p-4 rounded-lg bg-white shadow-sm transition-all duration-300">
+              <div class="input-group"><label class="required block text-sm font-medium text-gray-700">Nome do Ambiente</label><input type="text" class="env-name font-semibold text-lg w-full p-2 border-b focus:ring-2 focus:ring-blue-300" required></div>
+              <div class="input-group"><label class="block text-sm font-medium text-gray-700">Tipo de Atividade</label><input type="text" class="env-activity w-full text-sm p-2 border rounded focus:ring-1 focus:ring-blue-200"></div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div class="input-group"><label class="block text-sm font-medium text-gray-700">Ocupantes Fixos</label><input type="text" class="env-occupants-fixed w-full text-sm p-2 border rounded"></div>
+                  <div class="input-group"><label class="block text-sm font-medium text-gray-700">Ocupantes Flutuantes</label><input type="text" class="env-occupants-float w-full text-sm p-2 border rounded"></div>
+              </div>
+              <div class="input-group"><label class="block text-sm font-medium text-gray-700">Área Climatizada (m²)</label><input type="text" class="env-area w-full text-sm p-2 border rounded"></div>
+              <h4 class="font-semibold mt-4 mb-1 text-sm text-blue-900">Equipamentos:</h4>
+              <div class="equipments-container space-y-2 mt-2"></div>
+              <button class="add-equipment bg-blue-500 text-white text-sm py-1 px-2 rounded hover:bg-blue-600 shadow">Adicionar Equipamento</button>
+              <h4 class="font-semibold mt-4 mb-1 text-sm text-blue-900">Checklist de Manutenção (Editável):</h4>
+              <div class="checklist-container overflow-x-auto border rounded bg-slate-50 p-2 max-h-96"></div>
+              <div class="text-right mt-3">
+                  <button class="remove-environment bg-red-500 text-white text-sm py-1 px-3 rounded hover:bg-red-600 shadow">Remover Ambiente</button>
+              </div>
+          </div>
+      </div>
+      <div id="equipment-template">
+          <div class="equipment-item border border-slate-300 bg-gray-50 p-4 rounded mt-2 relative shadow-sm">
+              <button class="remove-equipment absolute top-2 right-2 text-red-500 hover:text-red-700 font-bold text-lg leading-none p-1">&times;</button>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
+                  <div class="input-group">
+                      <label class="required block text-sm font-medium text-gray-700">Equipamento</label>
+                      <input type="text" placeholder="Ex: Split" class="equip-type w-full text-sm p-2 border rounded focus:ring-1 focus:ring-blue-300" required>
+                  </div>
+                  <div class="input-group">
+                      <label class="block text-sm font-medium text-gray-700">Fabricante</label>
+                      <input type="text" placeholder="Ex: LG" class="equip-manufacturer w-full text-sm p-2 border rounded">
+                  </div>
+                  <div class="input-group sm:col-span-2">
+                      <label class="block text-sm font-medium text-gray-700">Modelo</label>
+                      <input type="text" placeholder="Ex: S3NW24K231A" class="equip-model w-full text-sm p-2 border rounded">
+                  </div>
+                  <div class="input-group">
+                      <label class="block text-sm font-medium text-gray-700">Capacidade Refrig.</label>
+                      <input type="text" placeholder="Ex: 22.000 BTU/h" class="equip-capacity-cool w-full text-sm p-2 border rounded">
+                  </div>
+                  <div class="input-group">
+                      <label class="block text-sm font-medium text-gray-700">Capacidade Aquec.</label>
+                      <input type="text" placeholder="Ex: N/A" class="equip-capacity-heat w-full text-sm p-2 border rounded">
+                  </div>
+                  <div class="input-group">
+                      <label class="block text-sm font-medium text-gray-700">Gás Refrigerante</label>
+                      <input type="text" placeholder="Ex: R32" class="equip-gas w-full text-sm p-2 border rounded">
+                  </div>
+                  <div class="input-group">
+                      <label class="block text-sm font-medium text-gray-700">Tensão</label>
+                      <input type="text" placeholder="Ex: 220V" class="equip-voltage w-full text-sm p-2 border rounded">
+                  </div>
+                  <div class="input-group">
+                      <label class="block text-sm font-medium text-gray-700">Frequência</label>
+                      <input type="text" placeholder="Ex: 60Hz" class="equip-frequency w-full text-sm p-2 border rounded">
+                  </div>
+                  <div class="input-group">
+                      <label class="block text-sm font-medium text-gray-700">Corrente</label>
+                      <input type="text" placeholder="Ex: 14,0 A" class="equip-current w-full text-sm p-2 border rounded">
+                  </div>
+                  <div class="input-group">
+                      <label class="required block text-sm font-medium text-gray-700">Quantidade</label>
+                      <input type="number" value="1" class="equip-qty w-full text-sm p-2 border rounded" min="1" required>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+
+  <div id="modal-container" class="modal-overlay">
+      <div class="modal-content shadow-xl border border-gray-200">
+          <p id="modal-message" class="mb-6 text-slate-700 text-lg font-medium"></p>
+          <div id="modal-buttons" class="flex justify-center gap-4">
+              <button id="modal-confirm" class="bg-blue-600 text-white py-2 px-6 rounded hover:bg-blue-700 transition duration-200">Confirmar</button>
+              <button id="modal-cancel" class="bg-gray-300 text-gray-800 py-2 px-6 rounded hover:bg-gray-400 transition duration-200">Cancelar</button>
+          </div>
+      </div>
+  </div>
+  
+  <div id="toast-container" class="toast-notification shadow-md rounded-lg border border-gray-300 bg-gray-900 text-white px-6 py-3">
+      <p id="toast-message" class="text-sm font-medium text-white text-center"></p>
+  </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const DOMElements = {
+            loginScreen: document.getElementById('login-screen'),
+            appContainer: document.getElementById('app-container'),
+            loginForm: document.getElementById('login-form'),
+            loginError: document.getElementById('login-error'),
+            forgotPasswordLink: document.getElementById('forgot-password-link'),
+            environmentsContainer: document.getElementById('environments-container'),
+            editorPreviewContainer: document.getElementById('pmoc-preview-container'),
+            editorContainer: document.getElementById('editor-container'),
+            printContainer: document.getElementById('print-view-container'),
+            printContentContainer: document.getElementById('pmoc-for-print'),
+            inputForm: document.getElementById('input-form'),
+            modal: {
+                container: document.getElementById('modal-container'),
+                message: document.getElementById('modal-message'),
+                confirmBtn: document.getElementById('modal-confirm'),
+                cancelBtn: document.getElementById('modal-cancel'),
+            },
+            toast: {
+                container: document.getElementById('toast-container'),
+                message: document.getElementById('toast-message'),
+            }
+        };
+
+        function showToast(message) {
+            DOMElements.toast.message.textContent = message;
+            DOMElements.toast.container.classList.add('visible');
+            setTimeout(() => DOMElements.toast.container.classList.remove('visible'), 3000);
+        }
+
+        function showModal(message, onConfirm) {
+            DOMElements.modal.message.textContent = message;
+            DOMElements.modal.container.classList.add('visible');
+            
+            const newConfirmBtn = DOMElements.modal.confirmBtn.cloneNode(true);
+            DOMElements.modal.confirmBtn.parentNode.replaceChild(newConfirmBtn, DOMElements.modal.confirmBtn);
+            DOMElements.modal.confirmBtn = newConfirmBtn;
+
+            DOMElements.modal.confirmBtn.onclick = () => {
+                DOMElements.modal.container.classList.remove('visible');
+                if(onConfirm) onConfirm();
+            };
+            DOMElements.modal.cancelBtn.onclick = () => DOMElements.modal.container.classList.remove('visible');
+        }
+
+        // --- LÓGICA DE LOGIN ---
+        let users = JSON.parse(localStorage.getItem('pmocUsers')) || { 'Helgon': 'Galo@170608', 'anderson': '123456' };
+
+        DOMElements.loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (users[username] && users[username] === password) {
+                DOMElements.loginScreen.style.display = 'none';
+                DOMElements.appContainer.style.display = 'block';
+                initializePmocGenerator();
+            } else {
+                DOMElements.loginError.classList.remove('hidden');
+            }
+        });
+
+        DOMElements.forgotPasswordLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            const username = prompt("Para alterar a sua senha, por favor, insira o seu nome de utilizador:");
+            if (users[username]) {
+                const newPassword = prompt("Insira a sua nova senha:");
+                if (newPassword) {
+                    const confirmPassword = prompt("Confirme a sua nova senha:");
+                    if (newPassword === confirmPassword) {
+                        users[username] = newPassword;
+                        localStorage.setItem('pmocUsers', JSON.stringify(users));
+                        showToast('Senha alterada com sucesso!');
+                    } else {
+                        showToast('As senhas não coincidem. A senha não foi alterada.');
+                    }
+                }
+            } else if (username) {
+                showToast('Utilizador não encontrado.');
+            }
+        });
+
+
+        function initializePmocGenerator() {
+            // --- DADOS INICIAIS E CONFIGURAÇÕES ---
+            const defaultIntroText = `O PMOC, sigla para Plano de Manutenção, Operação e Controle, é um plano estabelecido por lei visando garantir a qualidade do ambiente, preservando assim a saúde das pessoas e das edificações. Ele é baseado em diversos relatórios realizados com uma determinada periodicidade que vão informar sobre falhas, necessidade de manutenção e limpeza e outros dados relativos aos sistemas de climatização de um local.\n\nEm 1998, o Ministério da Saúde baixou a portaria nº 3.523, tornando obrigatória a implementação e disponibilização de um Plano de Manutenção, Operação e Controle (PMOC) em imóveis com sistemas de climatização. Em janeiro de 2018, a Lei 13.589/2018, publicada no Diário Oficial da União, complementou a portaria determinando que todos os edifícios - públicos ou privados - são obrigados a fazer a manutenção de seus sistemas de ar-condicionado.\n\nO PMOC deve obedecer aos parâmetros regulamentados pela Resolução 9/2003 da Agência Nacional de Vigilância Sanitária (Anvisa) e posteriores alterações, bem como às normas da Associação Brasileira de Normas Técnicas (ABNT). Sua ausência configura infração sanitária sujeita às penalidades previstas na Lei nº 6.437 e os valores da infração podem variar de R$ 2.000,00 a R$ 200.000,00.`;
+            const defaultConclusionText = `Recomenda-se a manutenção da limpeza dos ambientes para garantir a eficiência do sistema de climatização e a qualidade do ar. Manter portas e janelas fechadas durante a operação dos equipamentos. Todas as rotinas de manutenção foram executadas conforme o plano.`;
+
+            const checklistTasks = [
+                { task: "(FILTRO DE AR) LIMPAR ELEMENTO FILTRANTE OU SUBSTITUIR EM CASO DE AVARIAS", freq: "M" }, { task: "(DRENO) VERIFICAR OPERAÇÃO DE DRENAGEM DO CONDENSADOR DA BANDEJA", freq: "M" }, { task: "(BANDEJA DE DRENO) LAVAR AS BANDEIJAS COM REMOÇÃO DO LODO SEM O USO DE DESENGRAXANTES", freq: "T" }, { task: "(EVAPORADOR) VERIFICAR VAZAMENTOS E CORRIGIR SE NECESSÁRIO", freq: "T" }, { task: "(EVAPORADOR) LAVAR A SERPENTINA COM PRODUTO BIODEGRADÁVEL", freq: "S" }, { task: "(EVAPORADOR) VERIFICAR E ELIMINAR SUJEIRA, DANOS E CORROSÃO", freq: "M" }, { task: "(CARCAÇA PLÁSTICA) LIMPEZA UTILIZANDO PRODUTO BIODEGRADÁVEL", freq: "M" }, { task: "(CARCAÇA PLÁSTICA) VERIFICAR ESTADO DE CONSERVAÇÃO", freq: "M" }, { task: "(MOTOR EVAP.) VERIFICAR E ELIMINAR SUJEIRAS, DANOS E CORROSÃO", freq: "M" }, { task: "(MOTOR EVAP.) VERIFICAR RUÍDOS ANORMAIS E LUBRIFICAR SE NECESSÁRIO", freq: "M" }, { task: "(CONDENSADOR) LAVAR E REMOVER INCRUSTRAÇÕES", freq: "T" }, { task: "(CONDENSADOR) VERIFICAR EXISTENCIA DE DANOS E CORROSÃO", freq: "T" }, { task: "(CONDENSADOR) VERIFICAR VIBRAÇÕES E FIXAÇÃO OU RUÍDOS ANORMAIS", freq: "T" }, { task: "(CONDENSADOR) VERIFICAR VEDAÇÃO DOS PAINÉIS DE FECHAMENTO", freq: "T" }, { task: "(MOTOR CONDENS) VERIFICAR RUÍDOS ANORMAIS E LUBRIFICAR", freq: "T" }, { task: "(COMPRESSOR) VERIFICAR FIXAÇÃO, VIBRAÇÕES E RUÍDOS ANORMAIS", freq: "S" }, { task: "(CIRCUITO REFRIGERANTE) VERIFICAR VAZAMENTOS", freq: "T" }, { task: "(CIRCUITO ELÉTRICO) VERIFICAR DISJUNTORES, CONDUTORES E TOMADAS", freq: "M" }, { task: "(CIRCUITO ELÉTRICO) VERIFICAR TODOS OS CONTATOS E BORNES", freq: "M" }, { task: "(CIRCUITO ELÉTRICO) VERIFICAR SENSORES (DEGELO, AMBIENTE, OUTROS)", freq: "T" }, { task: "(CIRCUITO ELÉTRICO) VERIFICAR FUNCIONAMENTO DE DISPOSITIVO DE AQUECIMENTO", freq: "S" }, { task: "(CIRCUITO ELÉTRICO) MEDIR E REGISTRAR TENSÃO, CORRENTE", freq: "M" }, { task: "VERIFICAÇÃO DE PRESSÕES DE BAIXA E ALTA", freq: "S" }, { task: "VERIFICAR SE RETORNO DE AR SE ENCONTRA OBSTRUÍDO", freq: "M" }, { task: "(CIRCUITO REFRIGERANTE) VERIFICAR ISOLAMENTO TÉRMICO", freq: "T" }
+            ];
+
+            const initialData = [
+                { name: "Área da Frente do Restaurante", activity: "Atendimento ao Cliente", occupantsFixed: "4", occupantsFloat: "10", area: "55m²", equipments: [ { type: 'Split', manufacturer: 'LG', model: 'S3NW24K231A', capacityCool: '22.000 BTU/h', capacityHeat: 'N/A', gas: 'R32', voltage: '220V', frequency: '60Hz', current: '14,0 A', qty: 2 }, { type: 'Cortina de Ar', manufacturer: 'Springer', model: 'ACF1235', capacityCool: '1,20m', capacityHeat: 'N/A', gas: 'N/A', voltage: '220V', frequency: '60Hz', current: 'N/A', qty: 3 } ] }, { name: "Área Meio do Restaurante", activity: "Refeições", occupantsFixed: "N/A", occupantsFloat: "20", area: "146m²", equipments: [ { type: 'Cassete', manufacturer: 'LG', model: 'ATNW48GMLP1', capacityCool: '48.000 BTU/h', capacityHeat: 'N/A', gas: 'R410A', voltage: '220V', frequency: '60Hz', current: '27 A', qty: 2 } ] }
+            ];
+            
+            const formState = {};
+            
+            function collectAllData() {
+                const data = { ...formState };
+                
+                const inputs = DOMElements.inputForm.querySelectorAll('input, textarea');
+                inputs.forEach(input => {
+                    if (input.id && input.type !== 'file') {
+                        data[input.id] = input.value;
+                    }
+                });
+
+                data.environments = Array.from(DOMElements.environmentsContainer.querySelectorAll('.environment-item')).map(envEl => ({
+                    name: envEl.querySelector('.env-name').value,
+                    activity: envEl.querySelector('.env-activity').value,
+                    occupantsFixed: envEl.querySelector('.env-occupants-fixed').value,
+                    occupantsFloat: envEl.querySelector('.env-occupants-float').value,
+                    area: envEl.querySelector('.env-area').value,
+                    equipments: Array.from(envEl.querySelectorAll('.equipment-item')).map(eqEl => ({
+                        type: eqEl.querySelector('.equip-type').value, manufacturer: eqEl.querySelector('.equip-manufacturer').value, model: eqEl.querySelector('.equip-model').value, capacityCool: eqEl.querySelector('.equip-capacity-cool').value, capacityHeat: eqEl.querySelector('.equip-capacity-heat').value, gas: eqEl.querySelector('.equip-gas').value, voltage: eqEl.querySelector('.equip-voltage').value, frequency: eqEl.querySelector('.equip-frequency').value, current: eqEl.querySelector('.equip-current').value, qty: eqEl.querySelector('.equip-qty').value,
+                    })),
+                    checklistData: Array.from(envEl.querySelectorAll('.checklist-row')).map(rowEl => ({
+                        task: rowEl.dataset.task,
+                        m: rowEl.querySelector('.checklist-m').value,
+                        t: rowEl.querySelector('.checklist-t').value,
+                        s: rowEl.querySelector('.checklist-s').value,
+                    }))
+                }));
+                return data;
+            }
+
+            function generatePMOCHTML(data) {
+                const placeholderSVG = (text) => `data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='170' height='80'%3e%3crect width='170' height='80' style='fill:%23e8eaf6'/%3e%3ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%233949ab' font-family='sans-serif' font-size='14px'%3e${text}%3c/text%3e%3c/svg%3e`;
+                data.clientLogo = data.clientLogo || placeholderSVG('Logo Cliente');
+                data.companyLogo = data.companyLogo || placeholderSVG('Sua Logo');
+
+                let fullHtml = '';
+                fullHtml += generateCoverPage(data);
+                fullHtml += generateIntroPage(data);
+                fullHtml += generateIdAndListPage(data);
+                data.environments.forEach((env, index) => {
+                    if (env.name) fullHtml += generateEnvironmentPage(data, env, index);
+                });
+                fullHtml += generateConclusionPage(data);
+                return fullHtml;
+            }
+            
+            function updatePreview() {
+                const data = collectAllData();
+                const html = generatePMOCHTML(data);
+                DOMElements.editorPreviewContainer.innerHTML = `<div id="preview-scaler">${html}</div>`;
+                updatePagination(DOMElements.editorPreviewContainer);
+                adjustPreviewScaling();
+            }
+
+            function calculateTotalBTU(environments) {
+                let totalBTU = 0;
+                (environments || []).forEach(env => {
+                    (env.equipments || []).forEach(eq => {
+                        const capacityStr = eq.capacityCool || '0';
+                        if (capacityStr.toLowerCase().includes('btu')) {
+                            const btuValue = parseInt(capacityStr.replace(/\D/g, ''), 10);
+                            const qty = parseInt(eq.qty, 10) || 1;
+                            if (!isNaN(btuValue)) {
+                                totalBTU += btuValue * qty;
+                            }
+                        }
+                    });
+                });
+                return new Intl.NumberFormat('pt-BR').format(totalBTU);
+            }
+
+            function formatDate(dateString) {
+                if (!dateString) return '';
+                const date = new Date(dateString + 'T00:00:00');
+                return date.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' });
+            }
+            
+            const generatePageHeader = (d) => `
+                <header class="pmoc-header-design flex justify-between items-center">
+                    <div style="width: 30%;" class="text-left">
+                        <h3 class="font-bold text-xl">${d.companyName || ''}</h3>
+                    </div>
+                    <div class="flex-grow text-center">
+                        <p class="font-bold text-2xl">LAUDO TÉCNICO - PMOC</p>
+                    </div>
+                    <div style="width: 30%;" class="text-right">
+                        <img src="${d.companyLogo}" class="logo-img-color" style="max-height: 60px; display: inline-block;" alt="Logo">
+                    </div>
+                </header>`;
+
+            const generatePageFooter = (d) => `<footer class="pmoc-footer-design"><p>${d.companyName || ''} | ${d.companyAddress || ''} | Email: ${d.companyEmail || ''} | Telefone: ${d.companyPhone || ''} | <span class="page-number-placeholder"></span></p></footer>`;
+
+            function updatePagination(container) {
+                const pages = container.querySelectorAll('.pmoc-page');
+                const numberedPages = Array.from(pages).filter(p => !p.classList.contains('cover-page'));
+                const totalNumberedPages = numberedPages.length;
+                numberedPages.forEach((page, index) => {
+                    const pageNumberEl = page.querySelector('.page-number-placeholder');
+                    if (pageNumberEl) {
+                        pageNumberEl.textContent = `Página ${index + 1} de ${totalNumberedPages}`;
+                    }
+                });
+            }
+            const generateCoverPage = (d) => {
+                const coverStyle = d.coverImage ? `background-image: url('${d.coverImage}'); background-size: cover; background-position: center;` : '';
+                const coverContent = d.coverImage ? '' : `
+                    <div class="cover-header-design">
+                        <img src="${d.companyLogo}" class="logo-img-color" alt="Logo Empresa" style="max-height: 70px;">
+                        <img src="${d.clientLogo}" class="logo-img-color" alt="Logo Cliente" style="max-height: 70px;">
+                    </div>
+                    <div class="pmoc-page-content cover-page-main flex-grow flex flex-col justify-center">
+                        <h1 class="font-extrabold text-slate-800">PLANO DE MANUTENÇÃO, OPERAÇÃO E CONTROLE</h1>
+                        <p class="mt-4 text-xl">Sistemas de Climatização - PMOC</p>
+                        <div class="cover-page-client-box">
+                            <p class="text-2xl font-bold text-slate-800">${d.clientName || ''}</p>
+                            <p class="text-lg text-slate-600 mt-1">${d.clientAddress || ''}</p>
+                        </div>
+                    </div>
+                    <div class="pmoc-footer-design">
+                        <p>${d.companyCity || ''}, ${formatDate(d.documentDate)}</p>
+                    </div>`;
+                return `<div class="pmoc-page cover-page flex flex-col" style="${coverStyle}">${coverContent}</div>`;
+            };
+
+            const generateIntroPage = (d) => `<div class="pmoc-page">${generatePageHeader(d)}<div class="pmoc-page-content text-sm text-justify"><h2>Introdução</h2><div class="whitespace-pre-wrap">${d.introText || ''}</div></div>${generatePageFooter(d)}</div>`;
+
+            const generateIdAndListPage = (d) => `
+                <div class="pmoc-page">${generatePageHeader(d)}<div class="pmoc-page-content">
+                    <h2>1. Identificação do Estabelecimento</h2>
+                    <table class="w-full text-sm"><tbody>
+                        <tr><th style="width: 30%;">Cliente/Edifício:</th><td>${d.clientName || ''}</td></tr>
+                        <tr><th>Endereço:</th><td>${d.clientAddress || ''}</td></tr>
+                        <tr><th>CNPJ:</th><td>${d.clientContact || ''}</td></tr>
+                    </tbody></table>
+                    <h2>2. Identificação do Responsável</h2>
+                    <table class="w-full text-sm"><tbody>
+                        <tr><th style="width: 30%;">Empresa:</th><td>${d.companyName || ''}</td></tr>
+                        <tr><th>CNPJ:</th><td>${d.companyCnpj || ''}</td></tr>
+                        <tr><th>Nome do Responsável:</th><td>${d.techName || ''}</td></tr>
+                        <tr><th>Função / Cargo:</th><td>${d.techRole || 'Responsável Técnico'}</td></tr>
+                    </tbody></table>
+                    <h2>3. Relação de Ambientes e Equipamentos</h2>
+                    <table class="w-full text-sm mt-2"><thead><tr><th>Ambiente</th><th>Equipamento</th><th class="text-center">Qtd</th><th class="text-right">Capacidade</th></tr></thead>
+                    <tbody>${(d.environments || []).map(env => (env.equipments || []).map(eq => `<tr><td>${env.name}</td><td>${eq.type} ${eq.model}</td><td class="text-center">${eq.qty}</td><td class="text-right">${eq.capacityCool}</td></tr>`).join('')).join('')}</tbody>
+                    <tfoot><tr class="font-bold bg-gray-200"><td colspan="3" class="text-right">Capacidade Total Instalada:</td><td class="text-right">${calculateTotalBTU(d.environments || [])} BTU/h</td></tr></tfoot>
+                    </table></div>${generatePageFooter(d)}</div>`;
+
+            const generateEnvironmentPage = (d, env) => `
+                <div class="pmoc-page">${generatePageHeader(d)}<div class="pmoc-page-content">
+                    <h2>Plano de Manutenção - Ambiente: ${env.name}</h2>
+                    <table class="w-full text-sm mb-4"><tbody>
+                        <tr><th style="width: 25%;">Área Climatizada:</th><td style="width: 25%;">${env.area}</td><th style="width: 25%;">Ocupantes Fixos:</th><td style="width: 25%;">${env.occupantsFixed}</td></tr>
+                        <tr><th>Tipo de Atividade:</th><td>${env.activity}</td><th>Ocupantes Flutuantes:</th><td>${env.occupantsFloat}</td></tr>
+                    </tbody></table>
+                    ${(env.equipments || []).map(eq => `<div class="mb-4"><h3 class="section-title">Equipamento: ${eq.type} (${eq.qty}x) - ${eq.manufacturer} ${eq.model}</h3><table class="w-full text-xs"><tbody>
+                        <tr><th style="width: 25%;">Capacidade Refrig.:</th><td style="width: 25%;">${eq.capacityCool}</td><th style="width: 25%;">Capacidade Aquec.:</th><td style="width: 25%;">${eq.capacityHeat}</td></tr>
+                        <tr><th>Gás Refrigerante:</th><td>${eq.gas}</td><th>Tensão:</th><td>${eq.voltage}</td></tr>
+                        <tr><th>Frequência:</th><td>${eq.frequency}</td><th>Corrente:</th><td>${eq.current}</td></tr>
+                    </tbody></table></div>`).join('')}
+                    <h3 class="section-title">Checklist de Atividades de Manutenção</h3>
+                    <table class="w-full text-xs mt-4 checklist-table" style="border-collapse: collapse;">
+                        <thead>
+                            <tr>
+                                <th style="width: 55%; padding: 8px; font-size: 13px;">Atividade de Manutenção</th>
+                                <th style="width: 15%; padding: 8px; text-align: center; font-size: 13px;">Mensal</th>
+                                <th style="width: 15%; padding: 8px; text-align: center; font-size: 13px;">Trimestral</th>
+                                <th style="width: 15%; padding: 8px; text-align: center; font-size: 13px;">Semestral</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${(env.checklistData || []).map((item, index) => `
+                                <tr style="background-color: ${index % 2 === 0 ? 'white' : 'var(--light-gray)'};">
+                                    <td style="padding: 8px; line-height: 1.4; vertical-align: middle; font-size: 13px;">${item.task}</td>
+                                    <td style="padding: 8px; vertical-align: middle; text-align: center; font-size: 15px; font-weight: bold;">${item.m}</td>
+                                    <td style="padding: 8px; vertical-align: middle; text-align: center; font-size: 15px; font-weight: bold;">${item.t}</td>
+                                    <td style="padding: 8px; vertical-align: middle; text-align: center; font-size: 15px; font-weight: bold;">${item.s}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>${generatePageFooter(d)}</div>`;
+            
+            const generateConclusionPage = (d) => {
+                const signatureContent = d.signatureImage ? `<img src="${d.signatureImage}" alt="Assinatura" style="max-height: 80px; margin: 0 auto 10px auto; display: block;">` : `<div style="height: 90px;"></div>`;
+                return `<div class="pmoc-page">${generatePageHeader(d)}
+                    <div class="pmoc-page-content flex flex-col">
+                        <div><h2>Conclusão e Recomendações Finais</h2><p class="text-sm text-justify whitespace-pre-wrap p-4 bg-slate-50 rounded min-h-[400px]">${d.conclusionText || ''}</p></div>
+                        <div class="mt-auto pt-10 text-center">
+                            <p class="mb-12">${d.companyCity || ''}, ${formatDate(d.documentDate)}</p>
+                            <div class="w-full max-w-md mx-auto">
+                                ${signatureContent}
+                                <div class="border-t-2 border-slate-700 pt-2">
+                                    <p class="font-semibold text-lg">${d.techName || ''}</p>
+                                    <p class="text-sm">${d.techRole || 'Responsável Técnico'}</p>
+                                    <p class="text-sm">${d.techContact || ''}</p>
+                                    <p class="text-sm font-bold mt-2">${d.companyName || ''}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>${generatePageFooter(d)}</div>`;
+            };
+
+            function adjustPreviewScaling() {
+                const scaler = document.getElementById('preview-scaler');
+                const container = DOMElements.editorPreviewContainer;
+                if (!scaler || !container) return;
+                const firstPage = scaler.querySelector('.pmoc-page');
+                if (!firstPage) { container.style.height = 'auto'; return; }
+                const containerWidth = container.offsetWidth;
+                const pageWidth = firstPage.scrollWidth;
+                if (containerWidth < pageWidth) {
+                    const scale = containerWidth / pageWidth;
+                    scaler.style.transform = `scale(${scale})`;
+                    scaler.style.transformOrigin = 'top center';
+                    container.style.height = `${scaler.scrollHeight * scale}px`;
+                } else {
+                    scaler.style.transform = 'none';
+                    container.style.height = 'auto';
+                }
+            }
+
+            function addEnvironment(data = null) {
+                const template = document.getElementById('environment-template').firstElementChild.cloneNode(true);
+                if (data) {
+                    template.querySelector('.env-name').value = data.name || '';
+                    template.querySelector('.env-activity').value = data.activity || '';
+                    template.querySelector('.env-occupants-fixed').value = data.occupantsFixed || '';
+                    template.querySelector('.env-occupants-float').value = data.occupantsFloat || '';
+                    template.querySelector('.env-area').value = data.area || '';
+                }
+                const checklistContainer = template.querySelector('.checklist-container');
+                const table = document.createElement('table');
+                table.className = 'w-full text-xs checklist-table';
+                table.innerHTML = `<thead><tr><th>Atividade</th><th class="w-16">Mensal</th><th class="w-16">Trimestral</th><th class="w-16">Semestral</th></tr></thead>`;
+                const tbody = document.createElement('tbody');
+                checklistTasks.forEach((item, index) => {
+                    const savedItem = data?.checklistData?.[index];
+                    const row = tbody.insertRow();
+                    row.className = 'checklist-row';
+                    row.dataset.task = item.task;
+                    row.innerHTML = `<td class="pr-2 whitespace-normal">${item.task}</td><td><input type="text" class="w-full text-center border rounded py-1 px-1 checklist-m" value="${savedItem ? savedItem.m : (item.freq === 'M' ? 'X' : '')}"></td><td><input type="text" class="w-full text-center border rounded py-1 px-1 checklist-t" value="${savedItem ? savedItem.t : (item.freq === 'T' ? 'X' : '')}"></td><td><input type="text" class="w-full text-center border rounded py-1 px-1 checklist-s" value="${savedItem ? savedItem.s : (item.freq === 'S' ? 'X' : '')}"></td>`;
+                });
+                table.appendChild(tbody);
+                checklistContainer.appendChild(table);
+                DOMElements.environmentsContainer.appendChild(template);
+                if (data?.equipments) {
+                    data.equipments.forEach(equipData => addEquipment(template, equipData));
+                }
+                return template;
+            }
+
+            function addEquipment(envElement, data = null) {
+                const container = envElement.querySelector('.equipments-container');
+                const template = document.getElementById('equipment-template').firstElementChild.cloneNode(true);
+                if (data) {
+                    template.querySelector('.equip-type').value = data.type || '';
+                    template.querySelector('.equip-manufacturer').value = data.manufacturer || '';
+                    template.querySelector('.equip-model').value = data.model || '';
+                    template.querySelector('.equip-capacity-cool').value = data.capacityCool || '';
+                    template.querySelector('.equip-capacity-heat').value = data.capacityHeat || '';
+                    template.querySelector('.equip-gas').value = data.gas || '';
+                    template.querySelector('.equip-voltage').value = data.voltage || '';
+                    template.querySelector('.equip-frequency').value = data.frequency || '';
+                    template.querySelector('.equip-current').value = data.current || '';
+                    template.querySelector('.equip-qty').value = data.qty || 1;
+                }
+                container.appendChild(template);
+            }
+            
+            function saveState() {
+                const dataToSave = collectAllData();
+                localStorage.setItem('pmocGeneratorState', JSON.stringify(dataToSave));
+                showToast('Progresso salvo com sucesso!');
+            }
+
+            function loadState() {
+                const savedStateJSON = localStorage.getItem('pmocGeneratorState');
+                const state = savedStateJSON ? JSON.parse(savedStateJSON) : {};
+
+                const defaults = {
+                    clientName: "Restaurante Exemplo", clientAddress: "Av. Gastronômica, 123, Centro", clientContact: "00.000.000/0001-00", documentDate: new Date().toISOString().split('T')[0], companyCity: "Betim", companyName: "Sua Empresa de Climatização", companyAddress: "Sua Rua, 456, Seu Bairro", companyCnpj: "11.111.111/0001-11", companyPhone: "(31) 99999-9999", companyEmail: "contato@suaempresa.com", techName: "Seu Nome Completo", techRole: "Responsável Técnico", techContact: "MG000000000", introText: defaultIntroText, conclusionText: defaultConclusionText,
+                };
+
+                Object.keys(defaults).forEach(key => {
+                    const input = document.getElementById(key);
+                    if (input) {
+                        input.value = state[key] !== undefined ? state[key] : defaults[key];
+                    }
+                });
+
+                if (state.clientLogo) formState.clientLogo = state.clientLogo;
+                if (state.companyLogo) formState.companyLogo = state.companyLogo;
+                if (state.signatureImage) formState.signatureImage = state.signatureImage;
+                if (state.coverImage) formState.coverImage = state.coverImage;
+
+                DOMElements.environmentsContainer.innerHTML = '';
+                const environmentsToLoad = state.environments || initialData;
+                environmentsToLoad.forEach(envData => addEnvironment(envData));
+
+                if (savedStateJSON) {
+                    showToast('Progresso anterior carregado.');
+                }
+                updatePreview();
+            }
+
+            function validateForm() {
+                let isValid = true;
+                const requiredInputs = DOMElements.inputForm.querySelectorAll('[required]');
+                requiredInputs.forEach(input => {
+                    if (!input.value.trim()) {
+                        input.classList.add('border-red-500', 'ring-red-500', 'ring-1');
+                        isValid = false;
+                    } else {
+                        input.classList.remove('border-red-500', 'ring-red-500', 'ring-1');
+                    }
+                });
+                if (!isValid) {
+                    showToast('Por favor, preencha todos os campos obrigatórios.');
+                }
+                return isValid;
+            }
+
+            function bindEvents() {
+                window.addEventListener('resize', adjustPreviewScaling);
+                document.getElementById('add-environment').addEventListener('click', () => { addEnvironment(); updatePreview(); });
+                document.getElementById('save-state-button').addEventListener('click', saveState);
+                document.getElementById('clear-state-button').addEventListener('click', () => {
+                    showModal('Tem certeza que deseja apagar todo o progresso salvo?', () => {
+                        localStorage.removeItem('pmocGeneratorState');
+                        window.location.reload();
+                    });
+                });
+
+                DOMElements.inputForm.addEventListener('input', updatePreview);
+
+                DOMElements.environmentsContainer.addEventListener('click', (e) => {
+                    if (e.target.closest('.add-equipment')) { addEquipment(e.target.closest('.environment-item')); updatePreview(); }
+                    if (e.target.closest('.remove-environment')) { e.target.closest('.environment-item').remove(); updatePreview(); }
+                    if (e.target.closest('.remove-equipment')) { e.target.closest('.equipment-item').remove(); updatePreview(); }
+                });
+
+                function handleFileUpload(inputId, stateKey) {
+                    document.getElementById(inputId).addEventListener('change', function (event) {
+                        const file = event.target.files[0];
+                        if (file) {
+                            const reader = new FileReader();
+                            reader.onload = (e) => { formState[stateKey] = e.target.result; updatePreview(); };
+                            reader.readAsDataURL(file);
+                        }
+                    });
+                }
+                handleFileUpload('clientLogo', 'clientLogo');
+                handleFileUpload('companyLogo', 'companyLogo');
+                handleFileUpload('coverImage', 'coverImage');
+                handleFileUpload('signatureImage', 'signatureImage');
+
+                document.getElementById('removeCoverImage').addEventListener('click', () => { formState.coverImage = null; document.getElementById('coverImage').value = ''; updatePreview(); showToast('Imagem da capa removida.'); });
+                document.getElementById('removeSignatureImage').addEventListener('click', () => { formState.signatureImage = null; document.getElementById('signatureImage').value = ''; updatePreview(); showToast('Imagem da assinatura removida.'); });
+
+                document.getElementById('prepare-print-button').addEventListener('click', () => {
+                    if (!validateForm()) return;
+                    const data = collectAllData();
+                    DOMElements.printContentContainer.innerHTML = generatePMOCHTML(data);
+                    updatePagination(DOMElements.printContentContainer);
+                    DOMElements.editorContainer.style.display = 'none';
+                    DOMElements.printContainer.style.display = 'block';
+                });
+
+                document.getElementById('back-to-editor-button').addEventListener('click', () => {
+                    DOMElements.editorContainer.style.display = 'grid';
+                    DOMElements.printContainer.style.display = 'none';
+                });
+
+                async function waitForImagesToLoad(element) {
+                    const images = Array.from(element.querySelectorAll('img'));
+                    return Promise.all(images.map(img => new Promise(resolve => {
+                        if (img.complete && img.naturalHeight !== 0) return resolve();
+                        img.onload = img.onerror = resolve;
+                    })));
+                }
+                
+                document.getElementById('save-pdf-button').addEventListener('click', async (e) => {
+                    const button = e.currentTarget;
+                    const originalText = button.innerHTML;
+                    button.disabled = true;
+                    button.innerHTML = `<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Gerando...`;
+                    try {
+                        const { jsPDF } = window.jspdf;
+                        const printContent = document.getElementById('pmoc-for-print');
+                        const pages = printContent.querySelectorAll('.pmoc-page');
+                        const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+                        for (let i = 0; i < pages.length; i++) {
+                            await waitForImagesToLoad(pages[i]);
+                            const canvas = await html2canvas(pages[i], { scale: 4, useCORS: true, logging: false }); 
+                            const imgData = canvas.toDataURL('image/jpeg', 0.95);
+                            if (i > 0) doc.addPage();
+                            doc.addImage(imgData, 'JPEG', 0, 0, doc.internal.pageSize.getWidth(), doc.internal.pageSize.getHeight());
+                        }
+                        const data = collectAllData();
+                        const fileName = `pmoc-${data.clientName || 'documento'}.pdf`.replace(/[^a-z0-9_.-]/gi, '_').toLowerCase();
+                        doc.save(fileName);
+                    } catch (error) {
+                        console.error("Erro ao gerar PDF:", error);
+                        showToast("Ocorreu um erro ao gerar o PDF.");
+                    } finally {
+                        button.disabled = false;
+                        button.innerHTML = originalText;
+                    }
+                });
+
+                document.getElementById('logout-btn').addEventListener('click', () => {
+                    window.location.reload();
+                });
+            }
+            
+            loadState();
+            bindEvents();
+        }
+    });
+</script>
+</body>
+</html>

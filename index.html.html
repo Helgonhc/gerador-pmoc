@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gerador de PMOC Profissional v80 - Final</title>
+  <title>Gerador de PMOC Profissional v79 - Final</title>
 
   <!-- TailwindCSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -165,7 +165,7 @@
   <div id="login-screen" class="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-900 to-slate-700">
     <div class="w-full max-w-md p-8 space-y-8 bg-white rounded-2xl shadow-2xl">
         <div class="text-center">
-             <img class="mx-auto h-24 w-auto" src="https://i.postimg.cc/XNRRmcJ0/Chat-GPT-Image-30-06-2025-13-19-36.png " alt="Logo da Empresa">
+             <img class="mx-auto h-24 w-auto" src="https://storage.googleapis.com/project-1-122550950332/us-central1-uploads/2024-07-02T00:53:29.871Z/ChatGPT%20Image%2030_06_2025,%2013_19_36.jpg-08358719-9b85-4f1b-8be4-ed4060203f8c.jpg" alt="Logo da Empresa">
             <h2 class="mt-6 text-3xl font-bold text-gray-900">
                 Aceder à sua conta
             </h2>
@@ -432,7 +432,8 @@
         const loginError = document.getElementById('login-error');
 
         const users = { 'Helgon': 'Galo@170608' };
-        const users = {'Anderson':'admin123'}
+        const users = { 'anderson': 'Galo@170608' };
+
 
         loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
@@ -912,7 +913,8 @@
                 });
             }
             
-            // A inicialização agora ocorre após o login bem-sucedido
+            loadState();
+            bindEvents();
         }
     });
 </script>
